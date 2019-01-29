@@ -1,0 +1,81 @@
+//https://jsonmock.hackerrank.com/api/stocks/?%22date=5-January-2000%22
+
+
+import java.io.*;
+import java.util.*;
+import java.text.*;
+import java.math.*;
+import java.util.regex.*;
+import java.net.*;
+import com.google.gson.*;
+    
+class Stock{
+    double open,high,low,close;
+    String day;
+    Date date;
+    Stock(Date date,double open,double high,double low,double close){
+       this.date = date;
+       this.open = open;
+       this.high = high;
+       this.low = low;
+       this.close = close;
+       this.day = getDay(date);
+    }
+
+    public String getDay(Date date){
+        SimpleDateFormat format1 = new SimpleDateFormat("dd-MMM-yyyy");
+        Date formattedDate = format1.parse(date.toString());
+        DateFormat format2 = new SimpleDateFormat("EEEE");
+        String day = format2.format(formattedDate);
+        return day;
+    }
+}
+public class Solution {
+    /*
+     * Complete the function below.
+     */
+    static void openAndClosePrices(String firstDate, String lastDate, String weekDay) {
+           String url = "https://jsonmock.hackerrank.com/api/stocks";
+           JSONObject json = readFromUrl(url);
+          
+           int pages  = Integer.parseInt(json.get("total_pages"));
+           ArrayList <Stock> stockList = new ArrayList<Stock>();
+           for(int i=1;i<=pages;i++){
+               
+               String url1 = "https://jsonmock.hackerrank.com/api/stocks/?page="+i;
+               JSONObject pagedJson = readFromUrl(url);
+               JSONArray dataArray = pagedJson.getJSONArray("data");
+               for(int j=0;j<dataArray.length;j++){
+                   JSONObject jsonObj =  dataArray.getJSONObject(j);
+                   Stock stock= new Stock(jsonObj.getDate("date"),jsonObj.getDouble("open"), jsonObj.getDouble("high"),
+                        jsonObj.getDouble("low"), jsonObj.getDouble("close"));
+                    stockList.add(stock);    
+
+               }
+           }
+
+
+           for(Stock stock:stockList){
+               
+           }
+ 
+    }
+
+    public static JSONObject readFromUrl(String url) throws IOException, JSONException {
+        InputStream in = new URL(url).openStream();
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
+            StringBuilder sb = new StringBuilder();
+            int i;
+            while ((i = reader.read()) != -1) {
+                sb.append((char) i);
+            }
+            String text = sb.toString();
+            JSONObject json = new JSONObject(text);
+            return json;
+        } finally {
+            in.close();
+        }
+    }
+
+    public static void main(String[] args){
